@@ -1,0 +1,42 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.svm import SVC
+from sklearn.metrics import classification_report
+
+# Load the dataset (replace 'diabetes_data.csv' with your actual dataset file)
+data = pd.read_csv('diabetes_data.csv')
+
+# Split data into features (X) and target (y)
+X = data.drop('Outcome', axis=1)
+y = data['Outcome']
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Create an SVC model
+svc_model = SVC()
+
+# Define hyperparameters to tune
+param_grid = {
+    'C': [0.1, 1, 10],
+    'kernel': ['linear', 'rbf', 'poly'],
+    'gamma': ['scale', 'auto']
+}
+
+# Use GridSearchCV for hyperparameter tuning
+grid_search = GridSearchCV(svc_model, param_grid, cv=5, scoring='accuracy')
+grid_search.fit(X_train, y_train)
+
+# Get the best parameters
+best_params = grid_search.best_params_
+
+# Use the best model for prediction
+best_model = grid_search.best_estimator_
+y_pred = best_model.predict(X_test)
+
+# Evaluate the model
+report = classification_report(y_test, y_pred)
+
+# Print results
+print("Best Parameters:", best_params)
+print("Classification Report:\n", report)
